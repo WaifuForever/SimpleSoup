@@ -1,13 +1,20 @@
-from bs4 import BeautifulSoup
-import base64
 import requests
-from science_direct import *
+import xlsxwriter
+from science_direct import ScienceDirect
+from bs4 import BeautifulSoup
 
-
+workbook = xlsxwriter.Workbook('Articles.xlsx')
+worksheet = workbook.add_worksheet()
 
 articles_found = 1
 number = 0
+ 
+worksheet.write(0, 0, "Title")
+worksheet.write(0, 1, "Abstract")
+worksheet.write(0, 2, "Date")
+worksheet.write(0, 3, "Authors")
 
+sc = ScienceDirect(workbook, worksheet)
 while articles_found < 11:    
     url = "https://scholar.google.com/scholar?start=%d&q=cnn+fruit+sciencedirect&hl=en&as_sdt=0,5&as_ylo=2019&as_yhi=2022" % number
     number += 10
@@ -20,7 +27,7 @@ while articles_found < 11:
     for div in mydivs: 
 
         #retrieve data from the paper - 10 per time 
-        articles_found = extract(div, articles_found)   
+        articles_found = sc.extract(div, articles_found)   
         
    
-   
+workbook.close()
