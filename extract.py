@@ -57,31 +57,45 @@ class Extract:
             self.worksheet.write(self.articles_found, col + 3, data[3])
             
 
-    def __arxiv(self, div):   
-            print("arxiv")
+    def __arxiv(self, div):               
             for item in div.find_all("div", {"class": "gs_ri"}):          
             
                     article_url = item.a["href"]
                     if article_url.startswith("https://arxiv.org/"):
-                        print("\n\narticles found %d" % self.articles_found)
+                        print("\narticles found %d" % self.articles_found)
                         self.articles_found += 1
                         print("%s" % (article_url))
                                 
                         page = requests.get(article_url, headers=self.headers)
                         page_soup = BeautifulSoup(page.text, "html.parser")
                                 
-                        title = page_soup.find("h1", "descriptor").find("span", "descriptor")
-                        abstract = page_soup.find("blockquote", "abstract mathjax").find("span", "descriptor")
+                        title = page_soup.find("h1", "title mathjax")
+                        abstract = page_soup.find("blockquote", "abstract mathjax")
                         date = page_soup.find("div", "dateline")
                         
-                        data = [title.get_text(), abstract.get_text()]
+                        title = title.get_text()[6:]
+                        abstract = abstract.get_text()[12:]                        
+                        date = date.get_text()
+
+                        if "," in date:                           
+                            date = date.split(",")[0]
+                            date = date[-15: -5]
+                            
+                        else:
+                            date = date
+                            date = date[-12: -1]
+                        
+
+                       
 
                         print(title)
                         print(abstract)
                         print(date)
+
+                       
                         '''
                         try:
-                            data.append(date.get_text().split(",")[1])
+                            data.append(date.split(",")[1])
                             
                         except:
                             data.append(date.get_text())
@@ -89,24 +103,23 @@ class Extract:
                         authors_name = ""
                         count = 0
                         for author in page_soup.find("div", "authors").find_all("a"):
-                            print(author)
-                            '''full_name = ""
-                            for name in re.findall('[A-Z][^A-Z]*', author.get_text()):
-                                full_name += name + " "
-                            
+                            full_name = author.get_text()
+                                                       
                             if count == 0:
                                 authors_name += full_name
                             else:
-                                authors_name += ", " + full_name'''
+                                authors_name += ", " + full_name
 
-                        data.append(authors_name)
-                        #self.__write_xls(data, row = self.articles_found)
-                    else: 
-                        print("is not from arxiv")
+                                                    
+                        print(authors_name)
+                        data = [title, abstract, date, authors_name]
+                          
+                        self.__write_xls(data)
+                    #else: 
+                        #print("\n\nis not from arxiv")
                
             
-    def __science_direct(self, div): 
-        print("science_direct")
+    def __science_direct(self, div):        
         for item in div.find_all("div", {"class": "gs_ri"}):            
                 
                 article_url = item.a["href"]
@@ -143,7 +156,7 @@ class Extract:
 
                     data.append(authors_name)
                     self.__write_xls(data)
-                else: 
-                    print("is not from sciencedirect")
+                #else: 
+                #    print("is not from sciencedirect")
            
         
