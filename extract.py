@@ -6,7 +6,8 @@ from bs4 import BeautifulSoup
 class Extract:
     
     articles_found = 1
-      
+    total = 0
+    limit = 61
 
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'}
     workbook = ""
@@ -21,7 +22,7 @@ class Extract:
         number = 0
         url = "https://scholar.google.com/scholar?start=%d&q=cnn+fruit+%s&hl=en&as_sdt=0,5&as_ylo=2019&as_yhi=2022" % (number, db)
         
-        while self.articles_found < 11:               
+        while self.articles_found < self.limit:               
             number += 10
             search = requests.get(url, headers = self.headers)
             soup = BeautifulSoup(search.text, "html.parser")                   
@@ -33,8 +34,10 @@ class Extract:
                 #retrieve data from the paper - 10 per time 
                 #self.articles_found = sc.extract(div, self.articles_found)   
                 self.__extract(div, db) 
-        
-        
+
+        self.total += self.articles_found
+        self.articles_found = 0
+        print("total: %d" % self.total)
 
     def __extract (self, page, db):
         if db == "sciencedirect":

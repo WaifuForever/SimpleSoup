@@ -15,6 +15,6 @@ worksheet.write(0, 3, "Authors")
 print("starting...")
 ext = Extract(workbook, worksheet)
 
-#ext.search("sciencedirect")
+ext.search("sciencedirect")
 ext.search("arxiv")
 workbook.close()
