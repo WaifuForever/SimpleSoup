@@ -46,7 +46,6 @@ class Extract:
             self.__arxiv(page)
         
                    
-
     def __write_xls(self, data):
         
             col = 0
@@ -58,70 +57,63 @@ class Extract:
             self.worksheet.write(self.articles_found, col + 1, data[1], header_format)
             self.worksheet.write(self.articles_found, col + 2, data[2], header_format)
             self.worksheet.write(self.articles_found, col + 3, data[3], header_format)
-            
+            self.worksheet.write(self.articles_found, col + 4, data[4], header_format)
 
     def __arxiv(self, div):               
             for item in div.find_all("div", {"class": "gs_ri"}):          
             
                     article_url = item.a["href"]
-                    if article_url.startswith("https://arxiv.org/"):
+                    if article_url.startswith("https://arxiv.org/a"):
                         print("\narticles found %d" % self.articles_found)
-                        self.articles_found += 1
-                        print("%s" % (article_url))
-                                
-                        page = requests.get(article_url, headers=self.headers)
-                        page_soup = BeautifulSoup(page.text, "html.parser")
-                                
-                        title = page_soup.find("h1", "title mathjax")
-                        abstract = page_soup.find("blockquote", "abstract mathjax")
-                        date = page_soup.find("div", "dateline")
                         
-                        title = title.get_text()[6:]
-                        abstract = abstract.get_text()[12:]                        
-                        date = date.get_text()
-
-                        if "," in date:                           
-                            date = date.split(",")[0]
-                            date = date[-15: -5]
-                            
-                        else:
-                            date = date
-                            date = date[-12: -1]
-                        
-
                        
-
-                        print(title)
-                        print(abstract)
-                        print(date)
-
-                       
-                        '''
                         try:
-                            data.append(date.split(",")[1])
+                            page = requests.get(article_url, headers=self.headers)
+                            page_soup = BeautifulSoup(page.text, "html.parser")
+                                    
+                            title = page_soup.find("h1", "title mathjax")
+                            abstract = page_soup.find("blockquote", "abstract mathjax")
+                            date = page_soup.find("div", "dateline")
                             
-                        except:
-                            data.append(date.get_text())
-                        '''
-                        authors_name = ""
-                        count = 0
-                        for author in page_soup.find("div", "authors").find_all("a"):
-                            full_name = author.get_text()
-                                                       
-                            if count == 0:
-                                authors_name += full_name
+                            title = title.get_text()[6:]
+                            abstract = abstract.get_text()[12:]                        
+                            date = date.get_text()
+                            
+                            if "," in date:                           
+                                date = date.split(",")[0]
+                                date = date[-15: -5]
+                                
                             else:
-                                authors_name += ", " + full_name
+                                date = date
+                                date = date[-12: -1]
+                            
+                            print("%s" % (article_url))
+                            self.articles_found += 1         
+                                                                             
+                       
+                            authors_name = ""
+                            count = 0
+                            for author in page_soup.find("div", "authors").find_all("a"):
+                                full_name = ""
+                                for name in re.findall('[A-Z][^A-Z]*', author.get_text()):
+                                    full_name += name + " "
 
-                                                    
-                        print(authors_name)
-                        data = [title, abstract, date, authors_name, "arxiv"]
-                          
-                        self.__write_xls(data)
+                                                                                        
+                                if count == 0:
+                                    authors_name += full_name
+                                else:
+                                    authors_name += ", " + full_name
+
+                                                        
+                            print(authors_name)
+                            data = [title, abstract, date, authors_name, "arxiv"]
+                            
+                            self.__write_xls(data)
+                        except:
+                            print("%s skipped." % article_url)
                     #else: 
                         #print("\n\nis not from arxiv")
-               
-            
+                       
     def __science_direct(self, div):        
         for item in div.find_all("div", {"class": "gs_ri"}):            
                 
