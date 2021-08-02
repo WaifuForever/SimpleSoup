@@ -20,9 +20,9 @@ class Extract:
 
     def search(self, db):
         number = 0
-        url = "https://scholar.google.com/scholar?start=%d&q=cnn+fruit+%s&hl=en&as_sdt=0,5&as_ylo=2019&as_yhi=2022" % (number, db)
         
-        while self.articles_found < self.limit:               
+        while self.articles_found < self.limit:
+            url = "https://scholar.google.com/scholar?start=%d&q=cnn+fruit+%s&hl=en&as_sdt=0,5&as_ylo=2019&as_yhi=2022" % (number, db)
             number += 10
             search = requests.get(url, headers = self.headers)
             soup = BeautifulSoup(search.text, "html.parser")                   
@@ -52,12 +52,12 @@ class Extract:
             col = 0
             cell_format = self.workbook.add_format()
             cell_format.set_text_wrap()
-
+            header_format = self.workbook.add_format({'text_wrap': True, 'valign': 'top'})
             
-            self.worksheet.write(self.articles_found, col, data[0])
-            self.worksheet.write(self.articles_found, col + 1, data[1], cell_format)
-            self.worksheet.write(self.articles_found, col + 2, data[2])
-            self.worksheet.write(self.articles_found, col + 3, data[3])
+            self.worksheet.write(self.articles_found, col, data[0], header_format)
+            self.worksheet.write(self.articles_found, col + 1, data[1], header_format)
+            self.worksheet.write(self.articles_found, col + 2, data[2], header_format)
+            self.worksheet.write(self.articles_found, col + 3, data[3], header_format)
             
 
     def __arxiv(self, div):               
@@ -115,7 +115,7 @@ class Extract:
 
                                                     
                         print(authors_name)
-                        data = [title, abstract, date, authors_name]
+                        data = [title, abstract, date, authors_name, "arxiv"]
                           
                         self.__write_xls(data)
                     #else: 
@@ -158,6 +158,7 @@ class Extract:
                             authors_name += ", " + full_name
 
                     data.append(authors_name)
+                    data.append("science_direct")
                     self.__write_xls(data)
                 #else: 
                 #    print("is not from sciencedirect")
