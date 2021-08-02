@@ -11,8 +11,8 @@ worksheet.write(0, 1, "Abstract")
 worksheet.write(0, 2, "Date")
 worksheet.write(0, 3, "Authors")
 worksheet.write(0, 4, "database")
-worksheet.write(0, 5, "incluído")
-
+worksheet.write(0, 5, "url")
+worksheet.write(0, 6, "apto")
 
 print("starting...")
 ext = Extract(workbook, worksheet)
